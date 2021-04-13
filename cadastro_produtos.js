@@ -16,7 +16,40 @@ module.exports = class CadastroProdutos {
         const sql = "INSERT INTO produto (nome, preco) VALUES (?,?)";
         conexao.query(sql,[produto.nome,produto.preco]);
         conexao.end();
+    }
 
+    deletar(id) {
+        let conexao = mysql.createConnection(this.dadosConexao);    
+        conexao.connect();        
+        const sql = "DELETE FROM produto WHERE id=?";
+        conexao.query(sql,[id]);
+        conexao.end();
+    }
+
+    atualizar(id, produto){
+        let conexao = mysql.createConnection(this.dadosConexao);    
+        conexao.connect();        
+        const sql = "UPDATE produto SET nome=?, preco=? WHERE id=?";
+        conexao.query(sql,[produto.nome,produto.preco,id]);
+        conexao.end();
+    }
+
+    buscarPorId(id, mostraResultado){
+        let conexao = mysql.createConnection(this.dadosConexao);    
+        conexao.connect();        
+        const sql = "SELECT * FROM produto WHERE id=?";
+        conexao.query(sql, [id], function(err, res){
+            if(err) {
+                mostraResultado(err, null);
+            }
+            else {
+                if(res && res[0])
+                    mostraResultado(null, JSON.stringify(res[0]));
+                else
+                    mostraResultado(new Error("Id inexistente"), null);
+            }
+        });
+        conexao.end();        
     }
 
     //resultado é uma variável de callback (equivale a uma função)
@@ -29,8 +62,7 @@ module.exports = class CadastroProdutos {
                 mostraResultado(err, null);
             }
             else {
-                let produtos = JSON.stringify(res);
-                mostraResultado(null, produtos);
+                mostraResultado(null, JSON.stringify(res));
             }
         });
         conexao.end();
